@@ -1,7 +1,7 @@
 import { useSession } from "@/ctx";
 import { OfflineStorage } from "@/services/offline";
 import * as Network from "expo-network";
-import { Stack, router, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -16,8 +16,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import SignatureScreen, {
   SignatureViewRef,
 } from "react-native-signature-canvas";
-
-
 type ExternalMail = {
   id: string;
   referenceNumber: string;
@@ -168,7 +166,12 @@ export default function MailDetails() {
 
 
         Alert.alert("Success", "Receipt confirmed successfully", [
-          { text: "OK", onPress: () => router.back() },
+          {
+            text: "OK",
+            onPress: () => {
+              router.back();
+            },
+          },
         ]);
       } else {
         // Save offline

@@ -1,6 +1,7 @@
 import { MailCard } from "@/components/MailCard";
 import { ExternalMail } from "@/services/mail";
 import * as Network from "expo-network";
+import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -77,6 +78,12 @@ export default function HistoryScreen() {
       setRefreshing(false);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchMails();
+    }, [])
+  );
 
   useEffect(() => {
     fetchMails();

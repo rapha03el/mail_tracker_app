@@ -3,6 +3,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { ExternalMail } from '@/services/mail';
 import { OfflineStorage } from '@/services/offline';
 import * as Network from 'expo-network';
+import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, RefreshControl, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +14,7 @@ export default function PendingScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [syncing, setSyncing] = useState(false);
+
 
   const API_LIST = 'https://vraussd.vra.com/apis/api/externalmails/list';
   const API_CONFIRM = 'https://vraussd.vra.com/apis/api/externalmails';
@@ -123,6 +125,12 @@ export default function PendingScreen() {
       setRefreshing(false);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchMails();
+    }, [])
+  );
 
   useEffect(() => {
     fetchMails();

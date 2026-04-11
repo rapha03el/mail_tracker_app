@@ -2,6 +2,7 @@ import { Stack, Tabs } from "expo-router";
 import React from "react";
 
 import { HapticTab } from "@/components/haptic-tab";
+import { HeaderMenu } from "@/components/HeaderMenu"; // 👈 ADD THIS
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/theme";
@@ -14,7 +15,11 @@ export default function TabLayout() {
   return (
     <>
       <Stack.Screen
-        options={{ title: "Mail Tracker", headerTitleAlign: "center" }}
+        options={{
+          title: "Mail Tracker",
+          headerTitleAlign: "center",
+          headerRight: () => <HeaderMenu />,
+        }}
       />
       <Tabs
         screenOptions={{

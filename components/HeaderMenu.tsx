@@ -307,9 +307,12 @@ export function HeaderMenu() {
 }
 
 const styles = StyleSheet.create({
+  // In the menuButton style, update to:
   menuButton: {
     padding: 8,
     marginRight: 8,
+    borderRadius: 20,
+    backgroundColor: "transparent",
   },
   overlay: {
     flex: 1,

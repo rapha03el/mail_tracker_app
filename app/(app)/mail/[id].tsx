@@ -1,3 +1,4 @@
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useSession } from "@/ctx";
 import { OfflineStorage } from "@/services/offline";
 import * as Network from "expo-network";
@@ -16,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import SignatureScreen, {
   SignatureViewRef,
 } from "react-native-signature-canvas";
+
 type ExternalMail = {
   id: string;
   referenceNumber: string;
@@ -23,8 +25,8 @@ type ExternalMail = {
   description?: string;
   date: string;
   status?: string;
-  contact?: string; //field added
-  received_by?: string; //field added
+  contact?: string;
+  received_by?: string;
 };
 
 export default function MailDetails() {
@@ -47,10 +49,9 @@ export default function MailDetails() {
   const API_LIST = "https://vraussd.vra.com/apis/api/externalmails/list";
   const API_CONFIRM = "https://vraussd.vra.com/apis/api/externalmails";
 
-  // Fetch mail details
   useEffect(() => {
     if (!parsedMail) {
-      fetchMail(); // fallback only if no data passed
+      fetchMail();
     }
   }, []);
 
@@ -63,7 +64,7 @@ export default function MailDetails() {
       if (!isConnected) {
         Alert.alert(
           "No Internet Connection",
-          "You are offline. Please connect to the internet to load mail details."
+          "You are offline. Please connect to the internet to load mail details.",
         );
         setMail(null);
         return;
@@ -93,12 +94,11 @@ export default function MailDetails() {
       }));
 
       const found = data.find((m) => String(m.id) === String(mailId));
-
       setMail(found || null);
     } catch (error) {
       Alert.alert(
         "Connection Error",
-        "Unable to load mail details. Please check your internet connection and try again."
+        "Unable to load mail details. Please check your internet connection and try again.",
       );
       console.log("Fetch mail error:", error);
       setMail(null);
@@ -110,7 +110,6 @@ export default function MailDetails() {
   const handleClear = () => ref.current?.clearSignature();
   const handleConfirm = () => ref.current?.readSignature();
 
-  // Handle signature submission
   const onOK = async (signature: string) => {
     if (!mail) return;
 
@@ -137,7 +136,6 @@ export default function MailDetails() {
       const isConnected =
         networkState.isConnected && networkState.isInternetReachable !== false;
 
-      // Keep base64 string as is (store in VARCHAR)
       const base64Data = signature.replace(/^data:image\/png;base64,/, "");
 
       if (isConnected) {
@@ -145,7 +143,7 @@ export default function MailDetails() {
         formData.append("id", mail.id);
         formData.append("received_by", receivedBy);
         formData.append("contact", contact);
-        formData.append("signature", base64Data); // <-- store as base64 string
+        formData.append("signature", base64Data);
         formData.append("date", new Date().toISOString());
 
         const response = await fetch(API_CONFIRM, {
@@ -164,17 +162,10 @@ export default function MailDetails() {
           received_by: receivedBy,
         });
 
-
         Alert.alert("Success", "Receipt confirmed successfully", [
-          {
-            text: "OK",
-            onPress: () => {
-              router.back();
-            },
-          },
+          { text: "OK", onPress: () => router.back() },
         ]);
       } else {
-        // Save offline
         await OfflineStorage.saveConfirmation({
           id: mail.id,
           received_by: receivedBy,
@@ -199,124 +190,189 @@ export default function MailDetails() {
     }
   };
 
-  if (loading) return <ActivityIndicator className="flex-1" size="large" />;
-  if (!mail) return <Text className="text-center mt-8">Mail not found</Text>;
-
-
+  if (loading)
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-50">
+        <ActivityIndicator size="large" color="#3B82F6" />
+      </View>
+    );
+  if (!mail)
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-50">
+        <Text className="text-gray-500">Mail not found</Text>
+      </View>
+    );
 
   const isReceived = mail.status === "Received";
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
+    <SafeAreaView className="flex-1 bg-gray-50" edges={["bottom"]}>
       <Stack.Screen
         options={{
           title: mail.referenceNumber || "Mail Details",
           headerBackTitle: "Back",
+          headerStyle: { backgroundColor: "#FFFFFF" },
+          headerShadowVisible: false,
         }}
       />
 
       <ScrollView
-        className="flex-1 p-4"
+        className="flex-1"
         scrollEnabled={scrollEnabled}
         contentContainerStyle={{ paddingBottom: 40 }}
       >
-        {/* From */}
-        <View className="mb-6">
-          <Text className="text-gray-500 text-sm">From</Text>
-          <Text className="text-lg font-semibold text-gray-900">
-            {mail.from}
-          </Text>
-        </View>
-
-        {/* Date */}
-        <View className="mb-6">
-          <Text className="text-gray-500 text-sm">Date</Text>
-          <Text className="text-base text-gray-800">{mail.date}</Text>
-        </View>
-
-        <View className="h-[1px] bg-gray-200 my-2" />
-
-        {/* Receiving Officer */}
-        <View className="mb-6">
-          <Text className="text-gray-500 text-sm mb-1">Receiving Officer</Text>
-          <TextInput
-            className="bg-gray-100 p-3 rounded-lg text-gray-600"
-            value={receivedBy}
-            onChangeText={setReceivedBy}
-            editable={!isReceived}
-            placeholder="Enter receiving officer name"
-            placeholderTextColor="#9CA3AF"
-          />
-        </View>
-
-        {/* Contact */}
-        <View className="mb-6">
-          <Text className="text-gray-500 text-sm mb-1">Contact Number</Text>
-          <TextInput
-            className="bg-gray-50 border border-gray-300 p-3 rounded-lg text-gray-900"
-            placeholder="Enter contact number"
-            value={contact}
-            onChangeText={(text) => {
-              // Remove anything that is not a digit
-              const cleaned = text.replace(/[^0-9]/g, "");
-
-              // Limit to 10 digits
-              if (cleaned.length <= 10) {
-                setContact(cleaned);
-              }
-            }}
-            editable={!isReceived}
-            placeholderTextColor="#9CA3AF"
-            keyboardType="phone-pad"
-            maxLength={10}
-          />
-        </View>
-
-        {/* Signature */}
-        <Text className="text-gray-500 text-sm mb-2">Signature</Text>
-
-        {isReceived ? (
-          <View className="h-40 bg-gray-100 rounded-lg items-center justify-center border border-gray-200">
-            <Text className="text-green-600 font-bold">Already Received</Text>
+        {/* Status Banner */}
+        <View
+          className={`p-4 ${isReceived ? "bg-green-50" : "bg-orange-50"} border-b border-gray-100`}
+        >
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center">
+              <View
+                className={`w-2 h-2 rounded-full ${isReceived ? "bg-green-500" : "bg-orange-500"} mr-2`}
+              />
+              <Text
+                className={
+                  isReceived
+                    ? "text-green-700 font-semibold"
+                    : "text-orange-700 font-semibold"
+                }
+              >
+                {isReceived ? "✓ Already Received" : " Pending Confirmation"}
+              </Text>
+            </View>
+            <Text className="text-xs text-gray-400">
+              Ref: {mail.referenceNumber}
+            </Text>
           </View>
-        ) : (
-          <View className="h-60 border border-gray-300 rounded-lg overflow-hidden bg-white">
-            <SignatureScreen
-              ref={ref}
-              onOK={(sig) => {
-                setScrollEnabled(true);
-                onOK(sig);
-              }}
-              onBegin={() => setScrollEnabled(false)}
-              onEnd={() => setScrollEnabled(true)}
-              onClear={() => setScrollEnabled(true)}
-              descriptionText="Sign here"
-              clearText="Clear"
-              confirmText="Confirm"
-              webStyle={`.m-signature-pad--footer {display:none;} body,html {width:100%; height:100%;}`}
+        </View>
+
+        <View className="p-5">
+          {/* From Card */}
+          <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm border border-gray-100">
+            <View className="flex-row items-center mb-3">
+              <View className="w-8 h-8 bg-blue-100 rounded-full items-center justify-center mr-3">
+                <IconSymbol name="building.2.fill" size={16} color="#3B82F6" />
+              </View>
+              <Text className="text-gray-500 text-sm">From</Text>
+            </View>
+            <Text className="text-lg font-semibold text-gray-900">
+              {mail.from}
+            </Text>
+          </View>
+
+          {/* Date Card */}
+          <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm border border-gray-100">
+            <View className="flex-row items-center mb-3">
+              <View className="w-8 h-8 bg-purple-100 rounded-full items-center justify-center mr-3">
+                <IconSymbol name="calendar" size={16} color="#8B5CF6" />
+              </View>
+              <Text className="text-gray-500 text-sm">Date</Text>
+            </View>
+            <Text className="text-base text-gray-800">{mail.date}</Text>
+          </View>
+
+          <View className="h-px bg-gray-100 my-2" />
+
+          {/* Receiving Officer */}
+          <View className="mb-5">
+            <Text className="text-gray-700 text-sm font-medium mb-2">
+              👤 Receiving Officer
+            </Text>
+            <TextInput
+              className="bg-white border border-gray-200 rounded-xl p-4 text-gray-800"
+              value={receivedBy}
+              onChangeText={setReceivedBy}
+              editable={!isReceived}
+              placeholder="Enter receiving officer name"
+              placeholderTextColor="#9CA3AF"
             />
           </View>
-        )}
 
-        {!isReceived && (
-          <View className="flex-row mt-4 space-x-3">
-            <TouchableOpacity
-              className="flex-1 bg-gray-200 p-4 rounded-lg items-center"
-              onPress={handleClear}
-            >
-              <Text className="text-gray-700 font-bold">Clear</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="flex-1 bg-blue-700 p-4 rounded-lg items-center"
-              onPress={handleConfirm}
-              disabled={submitting}
-            >
-              <Text className="text-white font-bold">
-                {submitting ? "Submitting..." : "Confirm Receipt"}
-              </Text>
-            </TouchableOpacity>
+          {/* Contact Number */}
+          <View className="mb-5">
+            <Text className="text-gray-700 text-sm font-medium mb-2">
+              📞 Contact Number
+            </Text>
+            <TextInput
+              className="bg-white border border-gray-200 rounded-xl p-4 text-gray-800"
+              placeholder="Enter contact number"
+              value={contact}
+              onChangeText={(text) => {
+                const cleaned = text.replace(/[^0-9]/g, "");
+                if (cleaned.length <= 10) {
+                  setContact(cleaned);
+                }
+              }}
+              editable={!isReceived}
+              placeholderTextColor="#9CA3AF"
+              keyboardType="phone-pad"
+              maxLength={10}
+            />
           </View>
-        )}
+
+          {/* Signature Section */}
+          <View className="mb-5">
+            <Text className="text-gray-700 text-sm font-medium mb-2">
+              ✍️ Signature
+            </Text>
+
+            {isReceived ? (
+              <View className="bg-green-50 rounded-2xl p-8 items-center justify-center border border-green-100">
+                <IconSymbol
+                  name="checkmark.seal.fill"
+                  size={40}
+                  color="#22C55E"
+                />
+                <Text className="text-green-600 font-semibold mt-2">
+                  Already Received
+                </Text>
+                {mail.received_by && (
+                  <Text className="text-green-500 text-xs mt-1">
+                    by {mail.received_by}
+                  </Text>
+                )}
+              </View>
+            ) : (
+              <View className="h-56 border border-gray-200 rounded-2xl overflow-hidden bg-white">
+                <SignatureScreen
+                  ref={ref}
+                  onOK={(sig) => {
+                    setScrollEnabled(true);
+                    onOK(sig);
+                  }}
+                  onBegin={() => setScrollEnabled(false)}
+                  onEnd={() => setScrollEnabled(true)}
+                  onClear={() => setScrollEnabled(true)}
+                  descriptionText="Sign here"
+                  clearText="Clear"
+                  confirmText="Confirm"
+                  webStyle={`.m-signature-pad--footer {display:none;} body,html {width:100%; height:100%;}`}
+                />
+              </View>
+            )}
+          </View>
+
+          {/* Action Buttons */}
+          {!isReceived && (
+            <View className="flex-row gap-3 mt-4">
+              <TouchableOpacity
+                className="flex-1 bg-gray-100 py-4 rounded-xl items-center border border-gray-200"
+                onPress={handleClear}
+              >
+                <Text className="text-gray-700 font-semibold">Clear</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="flex-1 bg-blue-600 py-4 rounded-xl items-center shadow-sm"
+                onPress={handleConfirm}
+                disabled={submitting}
+              >
+                <Text className="text-white font-semibold">
+                  {submitting ? "Submitting..." : "✓ Confirm Receipt"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

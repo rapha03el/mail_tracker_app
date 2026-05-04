@@ -253,7 +253,7 @@ export default function MailDetails() {
               <View className="w-8 h-8 bg-blue-100 rounded-full items-center justify-center mr-3">
                 <IconSymbol name="building.2.fill" size={16} color="#3B82F6" />
               </View>
-              <Text className="text-gray-500 text-sm">From</Text>
+              <Text className="text-gray-500 text-sm">To</Text>
             </View>
             <Text className="text-lg font-semibold text-gray-900">
               {mail.from}

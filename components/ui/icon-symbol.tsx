@@ -21,10 +21,13 @@ const MAPPING = {
   "paperplane.fill": "send",
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
+  "building.2.fill": "apartment",
   "tray.fill": "inbox",
   "clock.fill": "history",
-  hourglass: "hourglass-empty",
-  checkmark: "check-circle",
+  "calendar": "calendar-today",
+  "hourglass": "hourglass-empty",
+  "checkmark": "check-circle",
+  "magnifyingglass": "search",
 } as IconMapping;
 
 /**

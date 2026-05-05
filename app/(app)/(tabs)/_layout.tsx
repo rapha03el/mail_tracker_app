@@ -2,10 +2,9 @@ import { Stack, Tabs } from "expo-router";
 import React from "react";
 
 import { HapticTab } from "@/components/haptic-tab";
-import { HeaderMenu } from "@/components/HeaderMenu"; // 👈 ADD THIS
+import { HeaderMenu } from "@/components/HeaderMenu";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Platform } from "react-native";
 
@@ -23,7 +22,9 @@ export default function TabLayout() {
       />
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? "dark"].tint,
+          tabBarActiveTintColor: "#333333", // ← Dark Gray (Selected)
+          tabBarInactiveTintColor: "#888888", // Optional: lighter gray when not selected
+
           headerShown: false,
           tabBarButton: HapticTab,
           tabBarBackground: TabBarBackground,

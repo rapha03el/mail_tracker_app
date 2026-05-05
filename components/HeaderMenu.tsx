@@ -27,7 +27,7 @@ export function HeaderMenu() {
         onPress={() => setMenuVisible(true)}
         style={styles.menuButton}
       >
-        <Ionicons name="menu-outline" size={24} color={iconColor} />
+        <Ionicons name="menu-outline" size={24} /*color={iconColor}*/ />
       </TouchableOpacity>
 
       {/* Dropdown Menu Modal */}
@@ -102,7 +102,7 @@ export function HeaderMenu() {
               <View
                 style={[
                   styles.dragHandle,
-                  { backgroundColor: "#CCCCCC" }, // 👈 CHANGED: Light gray
+                  { backgroundColor: "#110a0a" }, // 👈 CHANGED: Light gray
                 ]}
               />
             </View>

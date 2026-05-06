@@ -55,7 +55,9 @@ export default function HistoryScreen() {
       }
 
       const result = await response.json();
-      console.log("Raw API response:", result);
+      console.log("========== FULL API RESPONSE ==========");
+      console.log(JSON.stringify(result, null, 2));
+      console.log("========================================");
 
       const data: ExternalMail[] = (result.mails || []).map((mail: any) => ({
         id: mail.id?.toString() || Math.random().toString(),
@@ -64,6 +66,7 @@ export default function HistoryScreen() {
         contact: mail.contact || "n/a",
         received_by: mail.received_by || "n/a",
         date: mail.mail_sent_date || "",
+        confirmedAt: mail.updated_at || mail.created_at || "",
         status: "Received",
       }));
 

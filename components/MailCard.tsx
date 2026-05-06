@@ -12,6 +12,18 @@ export function MailCard({ mail }: MailCardProps) {
     mail.status === "Not Received" || mail.status !== "Received";
   const isReceived = mail.status === "Received";
 
+  // format for the confirmation time
+  const formatDateTime = (timestamp?: string) => {
+    if (!timestamp) return "";
+    const date = new Date(timestamp);
+    return date.toLocaleString([], {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
     <Link
       href={{
@@ -65,8 +77,18 @@ export function MailCard({ mail }: MailCardProps) {
             {mail.from}
           </Text>
 
-          {/* Show received by for history items */}
-          {isReceived && mail.received_by && (
+          {/* Display the confirmation time if its available */}
+          {isReceived && (mail as any).confirmedAt && (
+            <View className="flex-row items-center mt-1">
+              <IconSymbol name="clock.fill" size={12} color="#9CA3AF" />
+              <Text className="text-xs text-gray-400 ml-1">
+                Confirmed: {formatDateTime((mail as any).confirmedAt)}
+              </Text>
+            </View>
+          )}
+
+          {/*contingency plan: Show received by only if no time exists */}
+          {isReceived && mail.received_by && !(mail as any).confirmedAt && (
             <View className="flex-row items-center mt-1">
               <IconSymbol name="person.fill" size={12} color="#9CA3AF" />
               <Text className="text-xs text-gray-400 ml-1">
@@ -75,9 +97,9 @@ export function MailCard({ mail }: MailCardProps) {
             </View>
           )}
 
-          {/* Arrow indicator */}
-          <View className="absolute right-4 top-1/2 -translate-y-1/2">
-            <IconSymbol name="chevron.right" size={18} color="#D1D5DB" />
+          {/* the arrow indicator */}
+          <View className="absolute right-4 top-2/3 -translate-y-1/2">
+            <IconSymbol name="chevron.right" size={25} color="#c4c7cb" />
           </View>
         </View>
       </TouchableOpacity>

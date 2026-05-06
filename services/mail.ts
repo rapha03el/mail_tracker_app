@@ -4,6 +4,7 @@ export interface ExternalMail {
   date: string;
   contact?: string;
   received_by?: string;
+  confirmedAt?: string;
   from: string;
   status: "Not Received" | "Received";
 }

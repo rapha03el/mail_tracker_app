@@ -8,11 +8,9 @@ interface MailCardProps {
 }
 
 export function MailCard({ mail }: MailCardProps) {
-  const isPending =
-    mail.status === "Not Received" || mail.status !== "Received";
   const isReceived = mail.status === "Received";
+  const isPending = !isReceived;
 
-  // format for the confirmation time
   const formatDateTime = (timestamp?: string) => {
     if (!timestamp) return "";
     const date = new Date(timestamp);
@@ -35,71 +33,80 @@ export function MailCard({ mail }: MailCardProps) {
       }}
       asChild
     >
-      <TouchableOpacity
-        activeOpacity={0.7}
-        className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-3 overflow-hidden"
-      >
-        {/* Status Bar */}
-        <View
-          className={`h-1 ${isPending ? "bg-orange-500" : "bg-green-500"}`}
-        />
+      <TouchableOpacity activeOpacity={0.95} className="mb-3">
+        <View className="flex-row bg-[#F4F4F5] rounded-2xl border border-[#E4E4E7] overflow-hidden">
+          {/* LEFT ACCENT */}
+          <View
+            className={`w-[3px] ${
+              isPending ? "bg-amber-500" : "bg-emerald-500"
+            }`}
+          />
 
-        <View className="p-4">
-          {/* Header Row: Reference + Date + Status Badge */}
-          <View className="flex-row justify-between items-center mb-2">
-            <View className="flex-row items-center gap-2">
-              <View
-                className={`w-2 h-2 rounded-full ${isPending ? "bg-orange-500" : "bg-green-500"}`}
-              />
-              <Text className="text-xs font-mono text-gray-500">
-                {mail.referenceNumber}
+          {/* CONTENT */}
+          <View className="flex-1 p-4">
+            {/* TOP ROW */}
+            <View className="flex-row justify-between items-center mb-2">
+              <Text
+                className="text-base font-semibold text-gray-900 flex-1 pr-2"
+                numberOfLines={1}
+              >
+                {mail.from}
               </Text>
-            </View>
-            <View className="flex-row items-center gap-2">
-              <Text className="text-xs text-gray-400">📅 {mail.date}</Text>
+
               <View
-                className={`px-2 py-0.5 rounded-full ${isPending ? "bg-orange-100" : "bg-green-100"}`}
+                className={`px-2 py-0.5 rounded-full ${
+                  isPending ? "bg-amber-100" : "bg-emerald-100"
+                }`}
               >
                 <Text
-                  className={`text-xs font-semibold ${isPending ? "text-orange-700" : "text-green-700"}`}
+                  className={`text-[10px] font-semibold uppercase tracking-wide ${
+                    isPending ? "text-amber-700" : "text-emerald-700"
+                  }`}
                 >
                   {isPending ? "Pending" : "Received"}
                 </Text>
               </View>
             </View>
+
+            {/* META */}
+            <View className="flex-row justify-between items-center">
+              <View className="flex-row items-center gap-3">
+                <Text className="text-xs text-gray-500 font-mono">
+                  {mail.referenceNumber}
+                </Text>
+
+                <View className="flex-row items-center">
+                  <IconSymbol name="calendar" size={12} color="#6B7280" />
+                  <Text className="text-xs text-gray-600 ml-1">
+                    {mail.date}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* EXTRA INFO */}
+            {isReceived && (mail as any).confirmedAt && (
+              <View className="flex-row items-center mt-2">
+                <IconSymbol name="clock.fill" size={12} color="#6B7280" />
+                <Text className="text-xs text-gray-600 ml-1">
+                  Confirmed {formatDateTime((mail as any).confirmedAt)}
+                </Text>
+              </View>
+            )}
+
+            {isReceived && mail.received_by && !(mail as any).confirmedAt && (
+              <View className="flex-row items-center mt-2">
+                <IconSymbol name="person.fill" size={12} color="#6B7280" />
+                <Text className="text-xs text-gray-600 ml-1">
+                  Received by {mail.received_by}
+                </Text>
+              </View>
+            )}
           </View>
 
-          {/* Sender */}
-          <Text
-            className="font-semibold text-gray-800 text-base mb-1"
-            numberOfLines={1}
-          >
-            {mail.from}
-          </Text>
-
-          {/* Display the confirmation time if its available */}
-          {isReceived && (mail as any).confirmedAt && (
-            <View className="flex-row items-center mt-1">
-              <IconSymbol name="clock.fill" size={12} color="#9CA3AF" />
-              <Text className="text-xs text-gray-400 ml-1">
-                Confirmed: {formatDateTime((mail as any).confirmedAt)}
-              </Text>
-            </View>
-          )}
-
-          {/*contingency plan: Show received by only if no time exists */}
-          {isReceived && mail.received_by && !(mail as any).confirmedAt && (
-            <View className="flex-row items-center mt-1">
-              <IconSymbol name="person.fill" size={12} color="#9CA3AF" />
-              <Text className="text-xs text-gray-400 ml-1">
-                Received by: {mail.received_by}
-              </Text>
-            </View>
-          )}
-
-          {/* the arrow indicator */}
-          <View className="absolute right-4 top-2/3 -translate-y-1/2">
-            <IconSymbol name="chevron.right" size={25} color="#c4c7cb" />
+          {/* CHEVRON */}
+          <View className="justify-center pr-3">
+            <IconSymbol name="chevron.right" size={18} color="#9CA3AF" />
           </View>
         </View>
       </TouchableOpacity>
